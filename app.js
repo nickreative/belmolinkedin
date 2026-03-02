@@ -1,4 +1,3 @@
-const brandName = document.getElementById('brandName');
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const mediaList = document.getElementById('mediaList');
@@ -17,31 +16,16 @@ const formatSize = (bytes) => {
   return `${value.toFixed(value > 10 ? 0 : 1)} ${units[power]}`;
 };
 
-const getImageRatio = (url) =>
-  new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
-    img.onerror = () => resolve(null);
-    img.src = url;
-  });
-
-const handleFiles = async (files) => {
-  for (const file of [...files]) {
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) continue;
-
-    const url = URL.createObjectURL(file);
-    const type = file.type.startsWith('video/') ? 'video' : 'image';
-    const ratio = type === 'image' ? await getImageRatio(url) : null;
-
+const handleFiles = (files) => {
+  [...files].forEach((file) => {
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) return;
     stagedMedia.push({
       id: crypto.randomUUID(),
       file,
-      url,
-      type,
-      ratio,
+      url: URL.createObjectURL(file),
+      type: file.type.startsWith('video/') ? 'video' : 'image',
     });
-  }
-
+  });
   renderMediaList();
 };
 
@@ -66,33 +50,19 @@ const renderMediaList = () => {
   });
 };
 
-const canUsePortraitCollage = (mediaItems) => {
-  if (mediaItems.length < 4) return false;
-  return mediaItems.every(
-    (item) => item.type === 'image' && item.ratio && item.ratio > 0.74 && item.ratio < 0.86
-  );
-};
-
 const setMediaGrid = (container, mediaItems) => {
   const visible = mediaItems.slice(0, 4);
   const hiddenCount = Math.max(mediaItems.length - 4, 0);
-  const portraitCollage = canUsePortraitCollage(mediaItems);
 
-  container.classList.add(`layout-${visible.length}`);
-
-  if (portraitCollage) {
-    container.classList.add('portrait-collage');
-  } else if (visible.length === 1) {
-    container.style.gridTemplateColumns = '1fr';
-  } else {
-    container.style.gridTemplateColumns = '1fr 1fr';
-  }
+  if (visible.length === 1) container.style.gridTemplateColumns = '1fr';
+  if (visible.length === 2) container.style.gridTemplateColumns = '1fr 1fr';
+  if (visible.length >= 3) container.style.gridTemplateColumns = '1fr 1fr';
 
   visible.forEach((item, index) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'media-item';
 
-    if (!portraitCollage && visible.length === 3 && index === 0) {
+    if (visible.length === 3 && index === 0) {
       wrapper.style.gridRow = 'span 2';
       wrapper.style.minHeight = '360px';
     }
@@ -126,13 +96,9 @@ const buildPost = () => {
   if (!content && stagedMedia.length === 0) return;
 
   const clone = postTemplate.content.cloneNode(true);
-  const pickedName = brandName.value.trim() || 'Brand Name';
-
-  clone.querySelector('.name').textContent = pickedName;
-  clone.querySelector('.avatar').textContent = pickedName.charAt(0).toUpperCase();
-  clone.querySelector('.copy').textContent = content || ' ';
-
+  clone.querySelector('.copy').textContent = content || ' '; // keeps LinkedIn-like spacing
   const mediaContainer = clone.querySelector('.media');
+
   if (stagedMedia.length > 0) {
     setMediaGrid(mediaContainer, stagedMedia);
   } else {
@@ -141,13 +107,12 @@ const buildPost = () => {
 
   feed.prepend(clone);
   postText.value = '';
-  fileInput.value = '';
   stagedMedia = [];
   renderMediaList();
 };
 
 dropZone.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', async (event) => handleFiles(event.target.files));
+fileInput.addEventListener('change', (event) => handleFiles(event.target.files));
 
 ['dragenter', 'dragover'].forEach((eventName) => {
   dropZone.addEventListener(eventName, (event) => {
@@ -163,8 +128,8 @@ fileInput.addEventListener('change', async (event) => handleFiles(event.target.f
   });
 });
 
-dropZone.addEventListener('drop', async (event) => {
-  await handleFiles(event.dataTransfer.files);
+dropZone.addEventListener('drop', (event) => {
+  handleFiles(event.dataTransfer.files);
 });
 
 dropZone.addEventListener('keydown', (event) => {
