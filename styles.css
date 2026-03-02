@@ -202,12 +202,18 @@ textarea {
 
 .media.portrait-collage {
   grid-template-columns: 2fr 1fr;
-  grid-template-rows: repeat(3, minmax(175px, 1fr));
+  grid-auto-rows: auto;
 }
 
 .media.portrait-collage .media-item:first-child {
   grid-row: 1 / span 3;
-  min-height: 525px;
+  aspect-ratio: 2 / 3;
+  min-height: auto;
+}
+
+.media.portrait-collage .media-item:not(:first-child) {
+  aspect-ratio: 1 / 1;
+  min-height: auto;
 }
 
 .overflow-indicator {
