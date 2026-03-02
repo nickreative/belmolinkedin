@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LinkedIn Previewer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="composer-panel">
+        <h1>LinkedIn Previewer</h1>
+        <p class="subheading">Create local-only post mockups for client screenshots.</p>
+
+        <label for="postText">Post text</label>
+        <textarea
+          id="postText"
+          placeholder="Write your LinkedIn post here..."
+          rows="8"
+        ></textarea>
+
+        <div
+          id="dropZone"
+          class="drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop images or videos here"
+        >
+          <p>Drop images/videos here or click to choose files</p>
+          <small>Supports local previews only — nothing is uploaded.</small>
+          <input id="fileInput" type="file" accept="image/*,video/*" multiple hidden />
+        </div>
+
+        <ul id="mediaList" class="media-list" aria-live="polite"></ul>
+
+        <button id="submitPost" type="button">Add to preview</button>
+      </section>
+
+      <section class="preview-panel">
+        <header class="preview-header">LinkedIn Feed Preview</header>
+        <div id="feed" class="feed"></div>
+      </section>
+    </main>
+
+    <template id="postTemplate">
+      <article class="li-post">
+        <div class="li-post-head">
+          <div class="avatar">B</div>
+          <div>
+            <div class="name">Brand Name</div>
+            <div class="meta">Sponsored • 1h • 🌐</div>
+          </div>
+        </div>
+        <p class="copy"></p>
+        <div class="media"></div>
+        <div class="li-stats">
+          <span>👍 127</span>
+          <span>14 comments • 9 reposts</span>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
